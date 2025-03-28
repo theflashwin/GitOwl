@@ -12,8 +12,6 @@ from middlewares.schemas import CommitSummaryResponse
 
 client = OpenAI()
 
-# OpenAI.api_key = "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"
-
 MAX_DIFF_LENGTH = 6000  # Adjust based on your token needs
 
 def truncate_diff(diff: str, max_length: int = MAX_DIFF_LENGTH):
