@@ -18,6 +18,7 @@ export default function Home() {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(VerificationStates.NEED_TO_VERIFY);
+  const [error, setError] = useState("")
 
   const api = 'http://localhost:8000'
 
@@ -25,8 +26,11 @@ export default function Home() {
 
     setLoading(true)
 
-    const data = {
+    const data = verifying == VerificationStates.VALID ? {
       "repo_path": repoUrl
+    } : {
+      "repo_path": repoUrl,
+      "api_key": apiKey
     }
 
     console.log("enter")
@@ -43,7 +47,7 @@ export default function Home() {
 
         } else {
 
-          console.log(response.data.message)
+          setError(response.data.message)
 
         }
 
@@ -135,8 +139,8 @@ export default function Home() {
             <button
               onClick={handleSummarize}
               className={`px-6 py-2 text-white rounded-md font-bold focus:ring transform transition duration-300 ease-in-out flex items-center justify-center ${verifying !== VerificationStates.VALID && verifying !== VerificationStates.VERIFIED
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-gradient-to-r from-sky-700 to-amber-600 hover:from-pink-500 hover:to-green-500 hover:scale-105"
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-sky-700 to-amber-600 hover:from-pink-500 hover:to-green-500 hover:scale-105"
                 }`}
               disabled={verifying !== VerificationStates.VALID && verifying !== VerificationStates.VERIFIED}
             >
@@ -147,8 +151,8 @@ export default function Home() {
           {/* Conditionally render API key textbox */}
           <div
             className={`overflow-hidden transition-all duration-500 ${verifying === VerificationStates.INVALID || verifying === VerificationStates.VERIFIED
-                ? "max-h-40 opacity-100 mt-6"
-                : "max-h-0 opacity-0 mt-0"
+              ? "max-h-40 opacity-100 mt-6"
+              : "max-h-0 opacity-0 mt-0"
               }`}
           >
             <div className="bg-gray-800 bg-opacity-75 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg inline-block">
@@ -159,6 +163,15 @@ export default function Home() {
                 onChange={(e) => setApiKey(e.target.value)}
                 className="px-4 py-2 w-96 rounded-lg border border-green-500 bg-gray-700 text-white placeholder-gray-200 shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
               />
+            </div>
+          </div>
+
+          <div
+            className={`overflow-hidden transition-all duration-500 ${error ? "max-h-40 opacity-100 mt-6" : "max-h-0 opacity-0 mt-0"
+              }`}
+          >
+            <div className="bg-red-600 bg-opacity-80 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-xl inline-block text-white">
+              <span className="font-bold">⚠️ Error:</span> {error}
             </div>
           </div>
 

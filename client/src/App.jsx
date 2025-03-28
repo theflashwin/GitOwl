@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes, BrowserRouter } from 'react-rou
 import Home from './pages/Home'
 import EditPage from './pages/EditPage'
 
+import NotFound from './pages/NotFound'
+
 export default function App() {
 
   return (
@@ -14,6 +16,7 @@ export default function App() {
 
           <Route path='/' element={<Home/>} index />
           <Route path='/edit' element={<EditPage/>} />
+          <Route path="*" element={<NotFound />} />
 
         </Routes>
 

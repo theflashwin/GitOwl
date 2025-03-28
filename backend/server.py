@@ -37,21 +37,28 @@ def generate_summaries(request: RepoRequest):
     try:
         if not db.check_if_repo_exists(url=request.repo_path):
 
+            # perform error checks
+            print(connection.verify_github_token(request.repo_path, request.api_key))
+            if request.api_key and not connection.verify_github_token(request.repo_path, request.api_key):
+                return {
+                    "status": "error",
+                    "message": "This token is not valid for this repository."
+                    }
+
             title = connection.get_title(request.repo_path)
-            description = connection.get_description(request.repo_path)
-            summaries = processing.summarize_git_repo(repo_path=connection.clone_repo(request.repo_path))
+            description = connection.get_description(request.repo_path, github_token=request.api_key)
+            summaries = processing.summarize_github_repo(repo_url=request.repo_path, api_key=request.api_key)
 
             db.save_new_changes(request.repo_path, summaries=summaries, title=title, description=description)
+
             return {"status": "success"}
         else:
-            new_summaries = processing.summarize_existing_git_repo(repo_path=connection.clone_repo(request.repo_path), repo_url=request.repo_path)
-            db.save_existing_changes(url=request.repo_path, summaries=new_summaries)
             return {"status": "success"}
     except Exception as e:
         print(e)
         return {
             "status": "error",
-            "message": e
+            "message": "Some backend error occurred, please try again later!"
             }
     
 @app.get("/getrepo")
@@ -83,6 +90,36 @@ def get_summaries(repo_path: str):
             "summaries": summaries
         }
     }
+
+@app.post("/update")
+def update_summaries(request: RepoRequest):
+
+    try:
+        # perform error checks
+        if request.api_key and not connection.verify_github_token(request.repo_path, request.api_key):
+            return {
+                "status": "error",
+                "message": "This token is not valid for this repository."
+                }
+
+        # first, fetch updated summaries
+        new_summaries = processing.update_existing_repo(repo_url=request.repo_path, api_key=request.api_key)
+
+        # second, push these to the database
+        db.save_existing_changes(url=request.repo_path, new_summaries=new_summaries)
+
+        return {
+            "status": "success",
+        }
+
+    except Exception as e:
+
+        print(e)
+
+        return {
+            "status": "error",
+            "message": "Some network error occurred"
+        }
 
 @app.get("/verify-access")
 def verify_access(repo_url: str):

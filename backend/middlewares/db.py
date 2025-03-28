@@ -11,39 +11,21 @@ def check_if_repo_exists(url: str) -> bool:
     result = commits.find_one({"repo_url": url})
     return result is not None
 
-def save_existing_changes(url: str, summaries):
+def save_existing_changes(url: str, new_summaries):
     """
     Updates an existing repository in MongoDB by appending new commit summaries.
     """
-    if not summaries:
+
+    if len(new_summaries) < 1:
         return
 
-    existing_repo = commits.find_one({"repo_url": url})
+    latest_commit = new_summaries[-1]["commit_hash"]
 
-    # if not existing_repo:
-    #     return save_new_changes(url, summaries)
-
-    # Get the last stored commit
-    last_stored_commit = existing_repo.get("latest_commit_stored", "")
-
-    # Filter out commits that are already stored
-    new_commits = []
-    for summary in summaries:
-        if summary.get("commit_hash") == last_stored_commit:
-            break  # Stop when we reach the last stored commit
-        new_commits.append(summary)
-
-    if not new_commits:
-        return  # No new commits to store
-
-    latest_commit = new_commits[-1]["commit_hash"] if "commit_hash" in new_commits[-1] else last_stored_commit
-
-    # Update MongoDB record
     commits.update_one(
         {"repo_url": url},
         {
             "$set": {"latest_commit_stored": latest_commit},
-            "$push": {"changes": {"$each": new_commits}}
+            "$push": {"changes": {"$each": new_summaries}}
         }
     )
 
@@ -54,7 +36,7 @@ def save_new_changes(url: str, summaries: list, title: str, description: str):
     if not summaries:
         return
 
-    latest_commit = summaries[-1]["commit_hash"] if "commit_hash" in summaries[-1] else "unknown"
+    latest_commit = summaries[-1]["commit_hash"]
 
     commit_history = {
         "title": title,

@@ -8,7 +8,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="text-3xl font-extrabold text-white hover:text-gray-300">
-              Gnome
+              GitOwl
             </Link>
           </div>
           <div className="hidden md:block">
@@ -19,7 +19,7 @@ export default function Navbar() {
               >
                 Home
               </Link>
-              <Link
+              {/* <Link
                 to="/about"
                 className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-md font-medium"
               >
@@ -30,7 +30,7 @@ export default function Navbar() {
                 className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-md font-medium"
               >
                 Contact
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>

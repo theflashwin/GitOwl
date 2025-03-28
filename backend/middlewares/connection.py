@@ -50,15 +50,6 @@ def get_diff(repo_path: str, commit_hash: str):
     diff = repo.git.diff(parent_commit.hexsha, commit.hexsha, unified=3)
 
     return diff
-
-def clone_repo(url: str):
-    temp_dir = tempfile.mkdtemp()
-    try:
-        git.Repo.clone_from(url, temp_dir)
-        return temp_dir
-    except Exception as e:
-        shutil.rmtree(temp_dir, ignore_errors=True)
-        raise HTTPException(status_code=400, detail=f"Error Cloning Repo {e}")
     
 def get_title(url: str):
     
@@ -86,12 +77,13 @@ def get_description(repo_url: str, github_token: str = None):
     if github_token:
         g = Github(github_token)
     else:
-        g = Github()  # unauthenticated request (rate-limited)
+        g = Github()
 
     repo = g.get_repo(repo_path)
     return repo.description or "No description available."
 
 def verify_access(repo_url: str) -> dict:
+
     repo_path = "/".join(repo_url.rstrip("/").split("/")[-2:])
     g = Github()  # Unauthenticated access attempt
 
@@ -105,6 +97,9 @@ def verify_access(repo_url: str) -> dict:
         }
 
     except GithubException as e:
+
+        print(e)
+
         if e.status == 404:
             return {
             "status": "failure",
@@ -115,3 +110,15 @@ def verify_access(repo_url: str) -> dict:
             "status": "error",
             "message": "Some network error occurred",
             }
+        
+def verify_github_token(repo_url: str, token: str) -> bool:
+
+    repo_path = "/".join(repo_url.rstrip("/").split("/")[-2:])
+
+    try:
+        g = Github(token)
+        g.get_repo(repo_path)
+        return True
+    except Exception as e:
+        print(e)
+        return False
