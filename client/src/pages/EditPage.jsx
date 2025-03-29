@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { EditPageStates } from "../middlewares/states";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
+import user_auth from "../auth";
 
 export default function EditPage() {
 
@@ -22,6 +23,8 @@ export default function EditPage() {
   const [error, setError] = useState("")
 
   const [apiKey, setApiKey] = useState("")
+
+  const { user, authLoading, isLoggedIn } = user_auth()
 
   const navigate = useNavigate()
 
@@ -53,7 +56,7 @@ export default function EditPage() {
 
         })
         .catch(() => {
-          
+
           navigate("/notfound")
 
         });
@@ -70,6 +73,16 @@ export default function EditPage() {
 
     setLoading(true)
 
+    console.log(isLoggedIn)
+
+    if (!isLoggedIn) {
+      setLoading(false)
+      setError("You must be logged in to update repositories")
+      return;
+    }
+
+    console.log("hey")
+
     try {
       const response = await axios.get(`${api}/verify-access`, {
         params: { repo_url: `https://github.com/${url}` }  // <-- corrected to use params
@@ -82,7 +95,8 @@ export default function EditPage() {
         // send the update request
 
         const data = {
-          "repo_path": `https://github.com/${url}`
+          "repo_path": `https://github.com/${url}`,
+          "user_id": user.uid
         }
 
         const update_response = await axios.post(`${api}/update`, data)
@@ -116,12 +130,18 @@ export default function EditPage() {
     if (!apiKey.trim()) return;
 
     setLoading(true);
-    setError("");
+
+    if (!isLoggedIn) {
+      setLoading(false)
+      setError("You must be logged in to update repositories")
+      return;
+    }
 
     try {
       const data = {
         "repo_path": `https://github.com/${url}`,
-        "api_key": apiKey
+        "api_key": apiKey,
+        "user_id": user.uid
       };
 
       const update_response = await axios.post(`${api}/update`, data);
@@ -147,6 +167,14 @@ export default function EditPage() {
     <div className="w-full min-h-screen bg-gray-900 text-white py-10">
 
       <Navbar />
+
+      {error && (
+        <div className="max-w-4xl mx-auto mt-6 px-4">
+          <div className="bg-red-500 bg-opacity-20 text-white rounded-xl shadow-xl p-4 text-center">
+            ⚠️ {error}
+          </div>
+        </div>
+      )}
 
       <div className="max-w-4xl mx-auto mt-5">
         {pageLoading ? (
@@ -254,14 +282,14 @@ export default function EditPage() {
         </div>
       )}
 
-{(loading || pageLoading) && (
-  <div className="fixed inset-0 z-50 bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg flex flex-col items-center justify-center">
-    <Loader />
-    <p className="mt-4 text-xl text-gray-200 animate-pulse">
-      Summarizing repository commits...
-    </p>
-  </div>
-)}
+      {(loading || pageLoading) && (
+        <div className="fixed inset-0 z-50 bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg flex flex-col items-center justify-center">
+          <Loader />
+          <p className="mt-4 text-xl text-gray-200 animate-pulse">
+            Summarizing repository commits...
+          </p>
+        </div>
+      )}
 
     </div>
   );

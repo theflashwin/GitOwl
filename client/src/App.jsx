@@ -4,6 +4,9 @@ import Home from './pages/Home'
 import EditPage from './pages/EditPage'
 
 import NotFound from './pages/NotFound'
+import Login from './pages/Login'
+import Signup from './pages/SignUp'
+import Account from './pages/Account'
 
 export default function App() {
 
@@ -16,6 +19,10 @@ export default function App() {
 
           <Route path='/' element={<Home/>} index />
           <Route path='/edit' element={<EditPage/>} />
+          <Route path='/login' element={<Login/>} />
+          <Route path='/signup' element={<Signup/>} />
+          <Route path='/account' element={<Account/>} />
+
           <Route path="*" element={<NotFound />} />
 
         </Routes>

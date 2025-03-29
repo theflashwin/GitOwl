@@ -8,6 +8,7 @@ import { trim_url } from "../middlewares/processing";
 import { VerificationStates } from "../middlewares/states";
 import InlineSpinner from "../components/InlineSpinner";
 import AnimatedLoader from "../components/AnimatedLoader";
+import user_auth from "../auth";
 
 export default function Home() {
 
@@ -20,20 +21,30 @@ export default function Home() {
   const [verifying, setVerifying] = useState(VerificationStates.NEED_TO_VERIFY);
   const [error, setError] = useState("")
 
+  const {user, authLoading, isLoggedIn} = user_auth()
+
   const api = 'http://localhost:8000'
 
   const handleSummarize = async () => {
 
     setLoading(true)
 
-    const data = verifying == VerificationStates.VALID ? {
-      "repo_path": repoUrl
-    } : {
-      "repo_path": repoUrl,
-      "api_key": apiKey
+    console.log(isLoggedIn)
+
+    if (!isLoggedIn) {
+      setError("You must log in to summarize repos.")
+      setLoading(false)
+      return;
     }
 
-    console.log("enter")
+    const data = verifying == VerificationStates.VALID ? {
+      "repo_path": repoUrl,
+      "user_id": user.uid
+    } : {
+      "repo_path": repoUrl,
+      "api_key": apiKey,
+      "user_id": user.uid
+    }
 
     await axios.post(`${api}/summarize`, data)
       .then((response) => {
@@ -53,8 +64,7 @@ export default function Home() {
 
       })
       .catch((err) => {
-        console.log(err)
-        console.log("error")
+        setError("Some network error occurred.")
       })
 
     console.log("exit")

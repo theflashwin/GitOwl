@@ -22,3 +22,7 @@ class CommitSummaryResponse(BaseModel):
     title: str
     description: str
     important_changes: List[str]
+
+class User(BaseModel):
+    user_id: str
+    repos: List[str]

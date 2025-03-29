@@ -28,6 +28,7 @@ app.add_middleware(
 class RepoRequest(BaseModel):
     repo_path: str
     api_key: Optional[str] = None
+    user_id: str
 
 class GetRepoRequest(BaseModel):
     repo_path: str
@@ -50,6 +51,9 @@ def generate_summaries(request: RepoRequest):
             summaries = processing.summarize_github_repo(repo_url=request.repo_path, api_key=request.api_key)
 
             db.save_new_changes(request.repo_path, summaries=summaries, title=title, description=description)
+
+            # now, associate the repo with the user
+            db.set_repo_owner(repo_url=request.repo_path, user_id=request.user_id)
 
             return {"status": "success"}
         else:
