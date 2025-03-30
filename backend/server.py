@@ -8,8 +8,8 @@ from urllib.parse import urlparse
 
 from typing import Optional
 
-from middlewares import processing, connection, db
-from tasks import summarize_repo_task
+from middlewares import processing, connection, db, schemas
+from tasks import summarize_repo_task, update_summaries_task
 
 app = FastAPI()
 
@@ -108,12 +108,18 @@ def update_summaries(request: RepoRequest):
                 "status": "error",
                 "message": "This token is not valid for this repository."
                 }
+        
+        # check if already being updated
+        if db.check_if_repo_updating(repo_url=request.repo_path):
+            return {
+                "status": "error",
+                "message": "Update has already been triggered. Processing now..."
+            }
+        
+        # set the state to be processing
+        db.set_state(repo_url=request.repo_path, state=schemas.RepoStates.PROCESSING)
 
-        # first, fetch updated summaries
-        new_summaries = processing.update_existing_repo(repo_url=request.repo_path, api_key=request.api_key)
-
-        # second, push these to the database
-        db.save_existing_changes(url=request.repo_path, new_summaries=new_summaries)
+        update_summaries_task.delay(repo_url=request.repo_path, api_key=request.api_key)
 
         return {
             "status": "success",

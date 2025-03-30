@@ -2,7 +2,7 @@ from pymongo import MongoClient
 import datetime
 from datetime import datetime, timezone
 
-from middlewares.schemas import User
+from middlewares.schemas import User, RepoStates
 
 MONGO_URI = "mongodb+srv://ashwin:ashwin@cluster0.fmupqcr.mongodb.net/raffy"
 client = MongoClient(MONGO_URI)
@@ -37,6 +37,18 @@ def save_existing_changes(url: str, new_summaries):
         }
     )
 
+def check_if_repo_updating(repo_url: str):
+
+    repo = get_existing_repo(url=repo_url)
+    return repo["state"] == RepoStates.PROCESSING
+
+def set_state(repo_url: str, state: RepoStates):
+    
+    commits.update_one(
+        {"repo_url": repo_url},
+        {"$set": {"state": state.value}}
+    )
+
 def save_new_changes(url: str, summaries: list, title: str, description: str):
     """
     Saves new commit summaries for a repository that does not exist in MongoDB.
@@ -52,7 +64,8 @@ def save_new_changes(url: str, summaries: list, title: str, description: str):
         "passcode": "some_unique_key",  # You can modify this for authentication
         "context": "Initial commit history",
         "changes": summaries,
-        "date_created": datetime.now(timezone.utc).isoformat()
+        "date_created": datetime.now(timezone.utc).isoformat(),
+        "state": RepoStates.READY.value
     }
 
     commits.insert_one(commit_history)
