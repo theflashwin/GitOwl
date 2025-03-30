@@ -211,32 +211,44 @@ export default function EditPage() {
                 </button>
               </div>
 
-              {summaries.slice().reverse().map((commit) => (
-                <div
-                  key={commit.commit_hash}
-                  className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg border border-gray-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-semibold text-white">{commit.title}</h2>
-                    <span className="bg-blue-500 text-white text-sm px-3 py-1 rounded-full">
-                      {commit.date}
-                    </span>
-                  </div>
-
-                  <p className="text-gray-300 mb-4">{commit.description}</p>
-
-                  <ul className="list-disc list-inside text-gray-200 space-y-1">
-                    {commit.changes.map((change, idx) => (
-                      <li key={idx}>{change}</li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-6 text-xs text-gray-400 border-t border-gray-700 pt-4">
-                    <p><strong>Commit Hash:</strong> {commit.commit_hash}</p>
-                    {/* <p><strong>Author:</strong> {commit.author}</p> */}
-                  </div>
+              {summaries.length === 0 ? (
+                <div className="w-full border border-dashed border-gray-600 rounded-xl p-10 text-center bg-gray-800 bg-opacity-40 shadow-lg">
+                  <h3 className="text-2xl font-semibold text-white mb-4">⏳ Summarizing in Progress...</h3>
+                  <p className="text-gray-300 mb-4">
+                    We're currently analyzing and summarizing the commits in this repository.
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    Please check back in a few minutes to view your changelog.
+                  </p>
                 </div>
-              ))}
+              ) : (
+                summaries.slice().reverse().map((commit) => (
+                  <div
+                    key={commit.commit_hash}
+                    className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg border border-gray-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-2xl font-semibold text-white">{commit.title}</h2>
+                      <span className="bg-blue-500 text-white text-sm px-3 py-1 rounded-full">
+                        {commit.date}
+                      </span>
+                    </div>
+
+                    <p className="text-gray-300 mb-4">{commit.description}</p>
+
+                    <ul className="list-disc list-inside text-gray-200 space-y-1">
+                      {commit.changes.map((change, idx) => (
+                        <li key={idx}>{change}</li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-6 text-xs text-gray-400 border-t border-gray-700 pt-4">
+                      <p><strong>Commit Hash:</strong> {commit.commit_hash}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+
             </div>
           </div>
 

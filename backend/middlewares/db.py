@@ -1,4 +1,6 @@
 from pymongo import MongoClient
+import datetime
+from datetime import datetime, timezone
 
 from middlewares.schemas import User
 
@@ -39,10 +41,8 @@ def save_new_changes(url: str, summaries: list, title: str, description: str):
     """
     Saves new commit summaries for a repository that does not exist in MongoDB.
     """
-    if not summaries:
-        return
 
-    latest_commit = summaries[-1]["commit_hash"]
+    latest_commit = summaries[-1]["commit_hash"] if summaries else "none"
 
     commit_history = {
         "title": title,
@@ -52,6 +52,7 @@ def save_new_changes(url: str, summaries: list, title: str, description: str):
         "passcode": "some_unique_key",  # You can modify this for authentication
         "context": "Initial commit history",
         "changes": summaries,
+        "date_created": datetime.now(timezone.utc).isoformat()
     }
 
     commits.insert_one(commit_history)
@@ -73,7 +74,7 @@ def init_user(user_id: str) -> User:
 def fetch_user(user_id: str):
     
     # first check if user exists
-    user: User = commits.find_one({"user_id": user_id})
+    user = users.find_one({"user_id": user_id})
 
     if user is None:
         user = init_user(user_id)
@@ -82,10 +83,26 @@ def fetch_user(user_id: str):
 
 def set_repo_owner(repo_url: str, user_id: str):
     
-    if commits.find_one({"user_id": user_id}) is None:
+    if users.find_one({"user_id": user_id}) is None:
         init_user(user_id)
 
     users.update_one(
         {"user_id": user_id},
         {"$push": {"repos": repo_url}}
     )
+
+def get_repo_info(repo_url: str):
+
+    repo = commits.find_one({"repo_url": repo_url})
+
+    return {
+        "name": repo["title"],
+        "description": repo["description"],
+        "date": repo["date_created"],
+        "repo_url": repo["repo_url"]
+    }
+
+def check_user_free_tier(user_id: str):
+
+    user = fetch_user(user_id=user_id)
+    return len(user["repos"]) < 5

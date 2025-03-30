@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 from typing import Optional
 
 from middlewares import processing, connection, db
+from tasks import summarize_repo_task
 
 app = FastAPI()
 
@@ -38,8 +39,14 @@ def generate_summaries(request: RepoRequest):
     try:
         if not db.check_if_repo_exists(url=request.repo_path):
 
+            # check if user has more than give repositories
+            if not db.check_user_free_tier(user_id=request.user_id):
+                return {
+                    "status": "error",
+                    "message": "You cannot create more than 5 changelogs on a free account."
+                }
+
             # perform error checks
-            print(connection.verify_github_token(request.repo_path, request.api_key))
             if request.api_key and not connection.verify_github_token(request.repo_path, request.api_key):
                 return {
                     "status": "error",
@@ -48,12 +55,14 @@ def generate_summaries(request: RepoRequest):
 
             title = connection.get_title(request.repo_path)
             description = connection.get_description(request.repo_path, github_token=request.api_key)
-            summaries = processing.summarize_github_repo(repo_url=request.repo_path, api_key=request.api_key)
 
-            db.save_new_changes(request.repo_path, summaries=summaries, title=title, description=description)
+            db.save_new_changes(request.repo_path, summaries=[], title=title, description=description)
 
             # now, associate the repo with the user
             db.set_repo_owner(repo_url=request.repo_path, user_id=request.user_id)
+
+            # kickoff background task for summarization (because it takes forever lmao)
+            summarize_repo_task.delay(repo_url=request.repo_path, api_key=request.api_key)
 
             return {"status": "success"}
         else:
@@ -78,12 +87,6 @@ def get_summaries(repo_path: str):
     description: str = repo["description"]
     owner: str = path_parts[0]
     summaries: list = list(repo["changes"])
-
-    if not summaries:
-        return {
-            "status": "success",
-            "message": "No summaries are available."
-        }
 
     return {
         "status": "success",
@@ -128,3 +131,24 @@ def update_summaries(request: RepoRequest):
 @app.get("/verify-access")
 def verify_access(repo_url: str):
     return connection.verify_access(repo_url=repo_url)
+
+@app.get("/get-user-repos")
+def get_user_repos(user_id: str):
+    try:
+        repos = db.fetch_user(user_id=user_id)["repos"]
+
+        result = []
+        for repo in repos:
+            result.append(db.get_repo_info(repo_url=repo))
+
+        return {
+            "status": "success",
+            "payload": result
+        }
+    
+    except Exception as e:
+        print(e)
+        return {
+            "status": "error",
+            "message": "Some internal server error occurred"
+        }

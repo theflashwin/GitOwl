@@ -17,6 +17,7 @@ class CommitHistory(BaseModel):
     passcode: str = Field(...)
     context: str = Field(...)
     changes: List[Commit] = Field(...)
+    date_created: str = Field(...)
 
 class CommitSummaryResponse(BaseModel):
     title: str
