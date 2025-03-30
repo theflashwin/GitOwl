@@ -17,6 +17,13 @@ cd backend
 uvicorn server:app --reload
 ```
 
+Then, in a seperate terminal instance:
+
+```bash
+cd backend
+celery -A tasks.celery_app worker --loglevel=info
+```
+
 Then, in the second instance:
 
 ```bash
