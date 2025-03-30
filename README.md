@@ -36,7 +36,7 @@ The backend of this project is built using FastAPI, a python library. This was t
 
 First, one of the future enhancements I would like to make to this project is to make the LLM better, and faster, at summarizing the files. To do this, we could utillize LLM fine-tuning, and I knew that this would be easier via python. Further, there is a lot of documentation and examples on the internet using python as the language of choice for interacting with the OpenAI API. This is why I chose python as the language of choice.
 
-Second, I knew the API itself would be relatively simple, something I wanted by design. So, I thought FastAPI would be the perfect choice for this, with its ease of use and its simple interface.
+Second, I knew the API itself would be relatively simple, something I wanted by design. So, I thought FastAPI would be the perfect choice for this, with its ease of use and its simple interface. However, I noticed that the summarization task would take a very long time, and the user was stuck on the loading page for a very, very long time. Thus, I used Celery and Redis to make the actual summarization a background task.
 
 The backend database is MongoDB. I could lie and say this is because of its fantastic interface, easy-to-use API, and NoSQL approach, but honestly its because its the DB I have the most experience with and the one I find the simplest to set up and use.
 
@@ -56,7 +56,7 @@ The final solution I settled upon is to summarize file differences file by file 
 
 1. Adding functionality to actually edit the changelog - I am in the process of adding this, I know how to but I want to interface to be pretty and simplistic, and haven't really found a good approach on how to do this
 2. Security - adding the ability for pages to be public, private, etc... 
-3. User Accounts - my plan is to allow three free changelogs per account, and then have a paid tier for unlimited. Also, this will help users remember and keep track of the repositories they've edited
+3. User Accounts - my plan is to allow three free changelogs per account, and then have a paid tier for unlimited. Also, this will help users remember and keep track of the repositories they've edited {DONE}
 
 ## Apology
 
