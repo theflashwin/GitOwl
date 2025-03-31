@@ -24,3 +24,7 @@ class EditRepoTitleRequest(BaseModel):
 class EditRepoDescriptionRequest(BaseModel):
     repo_url: str
     new_description: str
+
+class DeleteCommitRequest(BaseModel):
+    repo_url: str
+    commit_hash: str

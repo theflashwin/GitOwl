@@ -2,7 +2,7 @@ from pymongo import MongoClient
 import datetime
 from datetime import datetime, timezone
 
-from middlewares.schemas import User, RepoStates
+from middlewares.schemas import User, RepoStates, UserStates
 
 MONGO_URI = "mongodb+srv://ashwin:ashwin@cluster0.fmupqcr.mongodb.net/raffy"
 client = MongoClient(MONGO_URI)
@@ -15,9 +15,6 @@ def check_if_repo_exists(url: str) -> bool:
     
     result = commits.find_one({"repo_url": url})
     return result is not None
-
-def fetch_repo(url: str):
-    pass
 
 def save_existing_changes(url: str, new_summaries):
     """
@@ -49,7 +46,7 @@ def set_state(repo_url: str, state: RepoStates):
         {"$set": {"state": state.value}}
     )
 
-def save_new_changes(url: str, summaries: list, title: str, description: str):
+def save_new_changes(url: str, summaries: list, title: str, description: str, user_id: str):
     """
     Saves new commit summaries for a repository that does not exist in MongoDB.
     """
@@ -65,7 +62,8 @@ def save_new_changes(url: str, summaries: list, title: str, description: str):
         "context": "Initial commit history",
         "changes": summaries,
         "date_created": datetime.now(timezone.utc).isoformat(),
-        "state": RepoStates.READY.value
+        "state": RepoStates.READY.value,
+        "users": {user_id: UserStates.OWNER.value}
     }
 
     commits.insert_one(commit_history)
@@ -84,7 +82,7 @@ def init_user(user_id: str) -> User:
     users.insert_one(new_user)
     return new_user
 
-def fetch_user(user_id: str):
+def fetch_user(user_id: str) -> User:
     
     # first check if user exists
     user = users.find_one({"user_id": user_id})
@@ -184,4 +182,26 @@ def edit_repo_description(repo_url: str, new_description: str):
     commits.update_one(
         {"repo_url": repo_url},
         {"$set": {"description": new_description}}
+    )
+
+def delete_commit(repo_url: str, commit_hash: str):
+    
+    repo = commits.find_one({"repo_url": repo_url})
+
+    # Filter out the commit to delete
+    updated_changes = [commit for commit in repo["changes"] if commit["commit_hash"] != commit_hash]
+
+    # Determine the new latest commit if needed
+    latest_commit = repo["latest_commit_stored"]
+    if latest_commit == commit_hash:
+        latest_commit = updated_changes[-1]["commit_hash"] if updated_changes else None
+
+    update_payload = {
+        "changes": updated_changes,
+        "latest_commit_stored": latest_commit
+    }
+
+    commits.update_one(
+        {"repo_url": repo_url},
+        {"$set": update_payload}
     )

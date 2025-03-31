@@ -28,6 +28,8 @@ export default function EditPage() {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
 
+  const [isOwner, setIsOwner] = useState(false)
+
   const { user, authLoading, isLoggedIn } = user_auth()
 
   const navigate = useNavigate()
@@ -36,6 +38,7 @@ export default function EditPage() {
   const api = 'http://localhost:8000'
 
   useEffect(() => {
+    console.log(authLoading)
     async function fetch() {
       await axios
         .get(`${api}/getrepo`, {
@@ -52,26 +55,31 @@ export default function EditPage() {
             setOwner(response.data.payload.owner)
             setSummaries(response.data.payload.summaries)
 
-            console.log(response.data.payload.summaries)
+            console.log(response.data.payload.users)
+
+            if (response.data.payload.users && response.data.payload.users[user.uid]) {
+              setIsOwner(true);
+            }
+    
 
           } else {
             navigate("/notfound")
           }
 
         })
-        .catch(() => {
+        .catch((err) => {
 
-          navigate("/notfound")
+          console.log(err)
 
         });
 
       setPageLoading(false);
     }
 
-    if (pageLoading) {
-      fetch();
+    if (pageLoading && !authLoading) {
+      fetch()
     }
-  }, [pageLoading]);
+  }, [pageLoading, authLoading]);
 
   const handleUpdate = async () => {
 
@@ -221,9 +229,9 @@ export default function EditPage() {
 
           <div className="max-w-4xl mx-auto py-10 px-4">
 
-<div className="mb-4 p-2 bg-gray-800 border-l-4 border-green-500 text-green-300 font-bold text-sm">
-          💡 Tip: Double-click on any field to edit it.
-        </div>
+            {isOwner ? <div className="mb-4 p-2 bg-gray-800 border-l-4 border-green-500 text-white font-bold text-sm">
+              💡 Tip: Double-click on any field to edit it.
+            </div> : <div/>}
 
             <div className="mb-10">
               <div className="flex justify-between items-center mb-4">
@@ -239,7 +247,7 @@ export default function EditPage() {
                 ) : (
                   <h1
                     className="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent cursor-pointer"
-                    onDoubleClick={() => setEditingTitle(true)}
+                    onDoubleClick={() => setEditingTitle(isOwner)}
                   >
                     {title}
                   </h1>
@@ -262,7 +270,7 @@ export default function EditPage() {
               ) : (
                 <p
                   className="text-lg text-gray-300 leading-relaxed max-w-3xl cursor-pointer"
-                  onDoubleClick={() => setEditingDescription(true)}
+                  onDoubleClick={() => setEditingDescription(isOwner)}
                 >
                   {description}
                 </p>
@@ -274,14 +282,14 @@ export default function EditPage() {
 
             <div className="space-y-8">
 
-              <div className="mb-8">
+              {isOwner ? <div className="mb-8">
                 <button
                   className="w-full py-3 border-2 border-dotted border-green-500 text-white rounded-xl text-xl font-semibold shadow hover:bg-green-500 hover:bg-opacity-10 hover:text-green-300 transition duration-300"
                   onClick={handleUpdate}
                 >
                   🔄 Update
                 </button>
-              </div>
+              </div> : <div/>}
 
               {summaries.length === 0 ? (
                 <div className="w-full border border-dashed border-gray-600 rounded-xl p-10 text-center bg-gray-800 bg-opacity-40 shadow-lg">
@@ -297,7 +305,7 @@ export default function EditPage() {
                 summaries
                   .slice()
                   .reverse()
-                  .map((commit) => <CommitCard key={commit.commit_hash} commit={commit} repo_url={url} />)
+                  .map((commit) => <CommitCard key={commit.commit_hash} commit={commit} repo_url={url} isOwner={isOwner} />)
               )}
 
 

@@ -6,11 +6,11 @@ import openai
 import os
 from urllib.parse import urlparse
 
-from typing import Optional
+from typing import Optional, Dict
 
 from middlewares import processing, connection, db, schemas
 from tasks import summarize_repo_task, update_summaries_task
-from schemas.requests import EditCommitBulletDescription, EditCommitDescriptionRequest, EditCommitTitleRequest, EditRepoTitleRequest, EditRepoDescriptionRequest
+from schemas.requests import EditCommitBulletDescription, EditCommitDescriptionRequest, EditCommitTitleRequest, EditRepoTitleRequest, EditRepoDescriptionRequest, DeleteCommitRequest
 
 app = FastAPI()
 
@@ -57,10 +57,8 @@ def generate_summaries(request: RepoRequest):
             title = connection.get_title(request.repo_path)
             description = connection.get_description(request.repo_path, github_token=request.api_key)
 
-            db.save_new_changes(request.repo_path, summaries=[], title=title, description=description)
-
-            # now, associate the repo with the user
             db.set_repo_owner(repo_url=request.repo_path, user_id=request.user_id)
+            db.save_new_changes(request.repo_path, summaries=[], title=title, description=description, user_id=request.user_id)
 
             # kickoff background task for summarization (because it takes forever lmao)
             summarize_repo_task.delay(repo_url=request.repo_path, api_key=request.api_key)
@@ -88,6 +86,7 @@ def get_summaries(repo_path: str):
     description: str = repo["description"]
     owner: str = path_parts[0]
     summaries: list = list(repo["changes"])
+    users: Dict = repo.get("users", {})
 
     return {
         "status": "success",
@@ -95,7 +94,8 @@ def get_summaries(repo_path: str):
             "title": title,
             "description": description,
             "owner": owner,
-            "summaries": summaries
+            "summaries": summaries,
+            "users": users
         }
     }
 
@@ -233,4 +233,19 @@ def edit_repo_description(request: EditRepoDescriptionRequest):
         return {
             "status": "error",
             "message": "Some error occurred while updating the description"
+        }
+    
+@app.post("/delete-commit")
+def delete_commit_bullet(request: DeleteCommitRequest):
+
+    try:
+        db.delete_commit(repo_url=request.repo_url, commit_hash=request.commit_hash)
+        return {
+            "status": "success"
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "status": "error",
+            "message": "Some server-side error occurred"
         }
