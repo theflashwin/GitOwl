@@ -40,7 +40,7 @@ def save_existing_changes(url: str, new_summaries):
 def check_if_repo_updating(repo_url: str):
 
     repo = get_existing_repo(url=repo_url)
-    return repo["state"] == RepoStates.PROCESSING
+    return repo["state"] == RepoStates.PROCESSING.value
 
 def set_state(repo_url: str, state: RepoStates):
     
@@ -119,3 +119,69 @@ def check_user_free_tier(user_id: str):
 
     user = fetch_user(user_id=user_id)
     return len(user["repos"]) < 5
+
+def edit_commit_title(repo_url: str, commit_hash: str, new_title: str):
+
+    print(commit_hash)
+    result = commits.update_one(
+        {
+            "repo_url": repo_url,
+            "changes.commit_hash": commit_hash
+        },
+        {
+            "$set": {
+                "changes.$.title": new_title
+            }
+        }
+    )
+    print(result)
+
+
+def edit_commit_description(repo_url: str, commit_hash: str, new_description: str):
+
+    commits.update_one(
+        {
+            "repo_url": repo_url,
+            "changes.commit_hash": commit_hash
+        },
+        {
+            "$set": {
+                "changes.$.description": new_description
+            }
+        }
+    )
+
+def edit_commit_bullet(repo_url: str, commit_hash: str, index: int, new_bullet: str):
+    repo = commits.find_one({"repo_url": repo_url})
+
+    if not repo:
+        return False
+
+    for commit in repo["changes"]:
+        if commit["commit_hash"] == commit_hash:
+            if 0 <= index < len(commit["changes"]):
+                commit["changes"][index] = new_bullet
+                break
+            else:
+                return False  # index out of bounds
+
+    result = commits.update_one(
+        {"repo_url": repo_url},
+        {"$set": {"changes": repo["changes"]}}
+    )
+
+    return result.modified_count > 0
+
+def edit_repo_title(repo_url: str, new_title: str):
+    
+    commits.update_one(
+        {"repo_url": repo_url},
+        {"$set": {"title": new_title}}
+    )
+
+def edit_repo_description(repo_url: str, new_description: str):
+    
+    commits.update_one(
+        {"repo_url": repo_url},
+        {"$set": {"description": new_description}}
+    )

@@ -10,6 +10,7 @@ from typing import Optional
 
 from middlewares import processing, connection, db, schemas
 from tasks import summarize_repo_task, update_summaries_task
+from schemas.requests import EditCommitBulletDescription, EditCommitDescriptionRequest, EditCommitTitleRequest, EditRepoTitleRequest, EditRepoDescriptionRequest
 
 app = FastAPI()
 
@@ -157,4 +158,79 @@ def get_user_repos(user_id: str):
         return {
             "status": "error",
             "message": "Some internal server error occurred"
+        }
+    
+@app.post("/edit-commit-title")
+def edit_commit_title(request: EditCommitTitleRequest):
+    
+    try:
+        db.edit_commit_title(repo_url=request.repo_url, commit_hash=request.commit_hash, new_title=request.new_title)
+        return {
+            "status": "success",
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "status": "error",
+            "message": "Some error occurred while updating the title"
+        }
+
+@app.post("/edit-commit-description")
+def edit_commit_description(request: EditCommitDescriptionRequest):
+    
+    try:
+        db.edit_commit_description(repo_url=request.repo_url, commit_hash=request.commit_hash, new_description=request.new_description)
+        return {
+            "status": "success",
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "status": "error",
+            "message": "Some error occurred while updating the description"
+        }
+
+@app.post("/edit-commit-bullet")
+def edit_commit_bullet(request: EditCommitBulletDescription):
+    
+    try:
+        db.edit_commit_bullet(repo_url=request.repo_url, commit_hash=request.commit_hash, index=request.index, new_bullet=request.new_bullet)
+        return {
+            "status": "success",
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "status": "error",
+            "message": "Some error occurred while updating the bullet"
+        }
+    
+@app.post("/edit-repo-title")
+def edit_repo_title(request: EditRepoTitleRequest):
+    
+    try: 
+        db.edit_repo_title(repo_url=request.repo_url, new_title=request.new_title)
+        return {
+            "status": "success",
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "status": "error",
+            "message": "Some error occurred while updating the title"
+        }
+
+@app.post("/edit-repo-description")
+def edit_repo_description(request: EditRepoDescriptionRequest):
+    
+    try:
+        db.edit_repo_description(repo_url=request.repo_url, new_description=request.new_description)
+        return {
+            "status": "success",
+        }
+    except Exception as e:
+        print(e)
+        return {
+            "status": "error",
+            "message": "Some error occurred while updating the description"
         }

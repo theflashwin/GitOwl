@@ -7,6 +7,7 @@ import { EditPageStates } from "../middlewares/states";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import user_auth from "../auth";
+import CommitCard from "../components/CommitCard";
 
 export default function EditPage() {
 
@@ -23,6 +24,9 @@ export default function EditPage() {
   const [error, setError] = useState("")
 
   const [apiKey, setApiKey] = useState("")
+
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
 
   const { user, authLoading, isLoggedIn } = user_auth()
 
@@ -106,7 +110,7 @@ export default function EditPage() {
         if (update_response.data.status === "success") {
           window.location.reload();
         } else {
-          setError("Some backend error occurred")
+          setError(update_response.data.message)
         }
 
       } else if (response.data.status === "failure") { // <-- corrected typo "states" to "status"
@@ -162,6 +166,39 @@ export default function EditPage() {
     setLoading(false);
   };
 
+  const handleTitleUpdate = async () => {
+
+    try {
+      setEditingTitle(false);
+      await axios.post(`${api}/edit-repo-title`, {
+        "repo_url": `https://github.com/${url}`,
+        "new_title": title,
+      }).catch((err) => {
+        console.log(err)
+        setError("Failed to update Title. Please try again.");
+      });
+    } catch (err) {
+      console.log(err)
+      setError("Failed to update Title. Please try again.");
+    }
+
+  }
+
+  const handleDescriptionUpdate = async () => {
+
+    try {
+      setEditingDescription(false);
+      await axios.post(`${api}/edit-repo-description`, {
+        "repo_url": `https://github.com/${url}`,
+        "new_description": description,
+      }).catch((err) => {
+        setError("Failed to update description. Please try again.");
+      });
+    } catch (err) {
+      setError("Failed to update description. Please try again.");
+    }
+
+  }
 
   return (
     <div className="w-full min-h-screen bg-gray-900 text-white py-10">
@@ -183,19 +220,54 @@ export default function EditPage() {
 
 
           <div className="max-w-4xl mx-auto py-10 px-4">
+
+<div className="mb-4 p-2 bg-gray-800 border-l-4 border-green-500 text-green-300 font-bold text-sm">
+          💡 Tip: Double-click on any field to edit it.
+        </div>
+
             <div className="mb-10">
               <div className="flex justify-between items-center mb-4">
-                <h1 className="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                  {title}
-                </h1>
+                {editingTitle ? (
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    onBlur={handleTitleUpdate}
+                    autoFocus
+                    className="text-5xl font-extrabold bg-gray-700 text-white rounded px-2 outline-none border border-gray-600"
+                  />
+
+                ) : (
+                  <h1
+                    className="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent cursor-pointer"
+                    onDoubleClick={() => setEditingTitle(true)}
+                  >
+                    {title}
+                  </h1>
+                )}
+
                 <span className="text-xl font-semibold text-gray-300">
                   By: {owner}
                 </span>
               </div>
 
-              <p className="text-lg text-gray-300 leading-relaxed max-w-3xl">
-                {description}
-              </p>
+              {editingDescription ? (
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  onBlur={handleDescriptionUpdate}
+                  autoFocus
+                  rows={3}
+                  className="w-full bg-gray-700 text-gray-200 rounded px-3 py-2 border border-gray-600 outline-none text-lg leading-relaxed max-w-3xl"
+                />
+              ) : (
+                <p
+                  className="text-lg text-gray-300 leading-relaxed max-w-3xl cursor-pointer"
+                  onDoubleClick={() => setEditingDescription(true)}
+                >
+                  {description}
+                </p>
+              )}
+
 
               <hr className="border-gray-600 mt-6" />
             </div>
@@ -222,32 +294,12 @@ export default function EditPage() {
                   </p>
                 </div>
               ) : (
-                summaries.slice().reverse().map((commit) => (
-                  <div
-                    key={commit.commit_hash}
-                    className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg border border-gray-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-2xl font-semibold text-white">{commit.title}</h2>
-                      <span className="bg-blue-500 text-white text-sm px-3 py-1 rounded-full">
-                        {commit.date}
-                      </span>
-                    </div>
-
-                    <p className="text-gray-300 mb-4">{commit.description}</p>
-
-                    <ul className="list-disc list-inside text-gray-200 space-y-1">
-                      {commit.changes.map((change, idx) => (
-                        <li key={idx}>{change}</li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-6 text-xs text-gray-400 border-t border-gray-700 pt-4">
-                      <p><strong>Commit Hash:</strong> {commit.commit_hash}</p>
-                    </div>
-                  </div>
-                ))
+                summaries
+                  .slice()
+                  .reverse()
+                  .map((commit) => <CommitCard key={commit.commit_hash} commit={commit} repo_url={url} />)
               )}
+
 
             </div>
           </div>
