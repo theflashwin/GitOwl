@@ -13,7 +13,7 @@ from middlewares.schemas import CommitSummaryResponse
 client = OpenAI()
 
 MAX_DIFF_LENGTH = 6000
-MAX_COMMITS = 300
+MAX_COMMITS = 500
 MAX_FILES = 150
 
 def truncate_diff(diff: str, max_length: int = MAX_DIFF_LENGTH):
