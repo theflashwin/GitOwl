@@ -54,7 +54,6 @@ def generate_summaries(request: RepoRequest):
                     }
             
             # perform rate limiting
-            
 
             title = connection.get_title(request.repo_path)
             description = connection.get_description(request.repo_path, github_token=request.api_key)
