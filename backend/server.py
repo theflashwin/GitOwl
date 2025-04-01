@@ -75,7 +75,7 @@ def generate_summaries(request: RepoRequest):
         print(e)
         return {
             "status": "error",
-            "message": "Some backend error occurred, please try again later!"
+            "message": "Make sure your token has access to the repo contents."
             }
     
 @app.get("/getrepo")
