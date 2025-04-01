@@ -1,10 +1,14 @@
 from pymongo import MongoClient
 import datetime
 from datetime import datetime, timezone
+from dotenv import load_dotenv
+import os
 
 from middlewares.schemas import User, RepoStates, UserStates
 
-MONGO_URI = "mongodb+srv://ashwin:ashwin@cluster0.fmupqcr.mongodb.net/raffy"
+load_dotenv()
+
+MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
 
 db = client["greptile-takehome"]

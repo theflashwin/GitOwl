@@ -14,11 +14,6 @@ from schemas.requests import EditCommitBulletDescription, EditCommitDescriptionR
 
 app = FastAPI()
 
-# Allow CORS from your frontend URL
-# origins = [
-#     "http://localhost:5173",
-# ]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
