@@ -6,6 +6,7 @@ import NotFound from './pages/NotFound'
 import Login from './pages/Login'
 import Signup from './pages/SignUp'
 import Account from './pages/Account'
+import { Analytics } from "@vercel/analytics/react"
 
 // Footer component with Tailwind styling
 const Footer = () => {
