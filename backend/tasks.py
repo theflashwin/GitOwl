@@ -1,10 +1,15 @@
 from celery import Celery
 from typing import Optional
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 celery_app = Celery(
     "tasks",
-    backend="redis://localhost:6379/0",
-    broker="redis://localhost:6379/0"
+    backend=os.getenv("CELERY_BROKER_URL"),
+    broker=os.getenv("CELERY_BROKER_URL")
 )
 
 from middlewares import processing, db, schemas

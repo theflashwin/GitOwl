@@ -11,12 +11,14 @@ export default function Repositories() {
   const [error, setError] = useState("");
   
   const { user, authLoading, isLoggedIn } = user_auth();
-  const api = import.meta.env.API_URL;
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     async function fetchRepos() {
 
       setLoading(true)
+
+      console.log(api)
 
       try {
         const response = await axios.get(`${api}/get-user-repos`, {
