@@ -10,7 +10,7 @@ const NotFound = () => {
         404
       </h1>
       <p className="mt-4 text-xl font-semibold">
-        Oops! The page you're looking for doesn't exist.
+        This repository doesn't exist yet. Go to the homepage to make it a reality!
       </p>
       <button
         onClick={() => navigate('/')}
