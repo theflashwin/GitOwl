@@ -71,6 +71,7 @@ export default function EditPage() {
         .catch((err) => {
 
           console.log(err)
+          navigate("/notfound")
 
         });
 
