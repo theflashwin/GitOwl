@@ -30,6 +30,10 @@ class RepoRequest(BaseModel):
 class GetRepoRequest(BaseModel):
     repo_path: str
 
+@app.get("/")
+def read_root():
+    return {"message": "API is live!"}
+
 @app.post("/summarize")
 def generate_summaries(request: RepoRequest):
     try:
