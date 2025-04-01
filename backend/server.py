@@ -34,6 +34,10 @@ class GetRepoRequest(BaseModel):
 def read_root():
     return {"message": "API is live!"}
 
+@app.post("/")
+def github_post():
+    return {"hello": 'hello'}
+
 @app.post("/summarize")
 def generate_summaries(request: RepoRequest):
     try:
