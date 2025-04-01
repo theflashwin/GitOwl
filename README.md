@@ -1,6 +1,6 @@
-# GitOwl
+# Git Parrot
 
-Keep a watchful eye on your Git repositories with GitOwl.
+BAKAWWWW. Keep a watchful eye on your Git repositories with GitParrot.
 
 ## How to Run Locally
 

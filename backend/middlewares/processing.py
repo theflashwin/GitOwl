@@ -12,7 +12,9 @@ from middlewares.schemas import CommitSummaryResponse
 
 client = OpenAI()
 
-MAX_DIFF_LENGTH = 6000  # Adjust based on your token needs
+MAX_DIFF_LENGTH = 6000
+MAX_COMMITS = 300
+MAX_FILES = 150
 
 def truncate_diff(diff: str, max_length: int = MAX_DIFF_LENGTH):
     if len(diff) > max_length:
@@ -36,7 +38,7 @@ def summarize_file_diff(file_diff: str):
 
 def summarize_commit(commit):
     file_summaries = []
-    for file in commit.files:
+    for file in commit.files[0:MAX_FILES]:
         if file.patch:
             truncated_patch = truncate_diff(file.patch)
             file_summary = summarize_file_diff(truncated_patch)
@@ -108,11 +110,14 @@ def summarize_github_repo(repo_url: str, api_key: Optional[str] = None, branch: 
     default_branch = repo.default_branch
     commits = repo.get_commits(sha=default_branch)
 
+    commit_list = list(commits)[:MAX_COMMITS]  # safely slice the most recent commits
+    commit_list.reverse()  # now oldest -> newest
+
     summaries = []
 
-    for commit in commits.reversed:
-        commit_summary = summarize_commit(commit)
-        summaries.append(commit_summary)
+    for commit in commit_list:
+        summary = summarize_commit(commit)
+        summaries.append(summary)
 
     return summaries
 
@@ -130,8 +135,12 @@ def update_existing_repo(repo_url: str, api_key: Optional[str] = None):
     summaries = []
     idx = next((i for i, commit in enumerate(commits) if commit.sha == existing_repo["latest_commit_stored"]), None)
 
-    # get index of the latest commit. start from here
-    for commit in reversed(commits[:idx]):
+    if idx is None:
+        return []
+    
+    recent_commits_to_process = list(reversed(commits[:idx]))[:MAX_COMMITS]
+
+    for commit in recent_commits_to_process:
         summaries.append(summarize_commit(commit))
 
     return summaries

@@ -21,7 +21,7 @@ const Footer = () => {
           Ashwin Mudaliar
         </a> © {new Date().getFullYear()} | 
         <a 
-          href="https://github.com/yourusername/your-repo-name" 
+          href="https://github.com/theflashwin/git-parrot" 
           target="_blank" 
           rel="noopener noreferrer"
           className="ml-2 text-blue-400 hover:underline transition-all duration-200"

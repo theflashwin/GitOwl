@@ -39,7 +39,7 @@ def generate_summaries(request: RepoRequest):
     try:
         if not db.check_if_repo_exists(url=request.repo_path):
 
-            # check if user has more than give repositories
+            # check if user has more than five repositories
             if not db.check_user_free_tier(user_id=request.user_id):
                 return {
                     "status": "error",
@@ -52,6 +52,9 @@ def generate_summaries(request: RepoRequest):
                     "status": "error",
                     "message": "This token is not valid for this repository."
                     }
+            
+            # perform rate limiting
+            
 
             title = connection.get_title(request.repo_path)
             description = connection.get_description(request.repo_path, github_token=request.api_key)

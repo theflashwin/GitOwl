@@ -61,7 +61,7 @@ export default function EditPage() {
             if (response.data.payload.users && response.data.payload.users[user.uid]) {
               setIsOwner(true);
             }
-    
+
 
           } else {
             navigate("/notfound")
@@ -228,11 +228,11 @@ export default function EditPage() {
         ) : (
           <div className="w-full py-4 sm:py-10 px-3 sm:px-4">
 
-            {isOwner ? 
+            {isOwner ?
               <div className="mb-4 p-2 bg-gray-800 border-l-4 border-green-500 text-white font-bold text-xs sm:text-sm">
                 💡 Tip: Double-click on any field to edit it.
-              </div> 
-            : <div/>}
+              </div>
+              : <div />}
 
             <div className="mb-6 sm:mb-10">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
@@ -280,7 +280,12 @@ export default function EditPage() {
             </div>
 
             <div className="space-y-6 sm:space-y-8">
-              {isOwner ? 
+
+              <div className="mb-4 sm:mb-6 text-sm text-gray-400 bg-gray-800 border-l-4 border-yellow-500 p-3 rounded">
+                ⚠️ Note: Only the last 300 commits are processed per update to ensure performance. For large repositories, some older commits may be excluded.
+              </div>
+
+              {isOwner ?
                 <div className="mb-4 sm:mb-8">
                   <button
                     className="w-full py-2 sm:py-3 border-2 border-dotted border-green-500 text-white rounded-xl text-lg sm:text-xl font-semibold shadow hover:bg-green-500 hover:bg-opacity-10 hover:text-green-300 transition duration-300"
@@ -288,8 +293,8 @@ export default function EditPage() {
                   >
                     🔄 Update
                   </button>
-                </div> 
-              : <div/>}
+                </div>
+                : <div />}
 
               {summaries && summaries.length === 0 ? (
                 <div className="w-full border border-dashed border-gray-600 rounded-xl p-6 sm:p-10 text-center bg-gray-800 bg-opacity-40 shadow-lg">
