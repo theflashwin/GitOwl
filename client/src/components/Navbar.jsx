@@ -20,7 +20,7 @@ export default function Navbar() {
               <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-blue-500 text-white rounded-full">BETA</span>
             </Link>
           </div>
-          
+
           {/* Desktop menu */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-6">
@@ -45,9 +45,17 @@ export default function Navbar() {
                   Account
                 </Link>
               )}
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSdEDWIm0Dhpj5fnME-sgOZ4Ums-L7tMiDNMXS0NNKnUWwBcWg/viewform?usp=dialog"
+                className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-md font-medium"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Bugs?
+              </a>
             </div>
           </div>
-          
+
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
             <button
