@@ -84,6 +84,11 @@ def get_description(repo_url: str, github_token: str = None):
 
 def verify_access(repo_url: str) -> dict:
 
+    return {
+            "status": "failure",
+            "message": "Need api key",
+            }
+
     repo_path = "/".join(repo_url.rstrip("/").split("/")[-2:])
     g = Github()  # Unauthenticated access attempt
 

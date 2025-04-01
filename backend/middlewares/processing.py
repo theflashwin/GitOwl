@@ -111,7 +111,7 @@ def summarize_github_repo(repo_url: str, api_key: Optional[str] = None, branch: 
 
     repo = g.get_repo(repo_path)
     default_branch = repo.default_branch
-    commits = repo.get_commits(os.getenv("GITHUB_API_URL"), sha=default_branch)
+    commits = repo.get_commits(sha=default_branch)
 
     commit_list = list(commits)[:MAX_COMMITS]  # safely slice the most recent commits
     commit_list.reverse()  # now oldest -> newest
@@ -133,7 +133,7 @@ def update_existing_repo(repo_url: str, api_key: Optional[str] = None):
     existing_repo = db.get_existing_repo(url=repo_url)
 
     default_branch = remote_repo.default_branch
-    commits = list(remote_repo.get_commits(os.getenv("GITHUB_API_URL"), sha=default_branch))
+    commits = list(remote_repo.get_commits(sha=default_branch))
 
     summaries = []
     idx = next((i for i, commit in enumerate(commits) if commit.sha == existing_repo["latest_commit_stored"]), None)
