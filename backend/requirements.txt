@@ -7,3 +7,4 @@ PyGithub==2.6.1
 pymongo==4.11.3
 uvicorn
 python-dotenv
+redis
