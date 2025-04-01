@@ -97,7 +97,7 @@ export default function EditPage() {
 
     try {
       const response = await axios.get(`${api}/verify-access`, {
-        params: { repo_url: `https://github.com/${url}` }  // <-- corrected to use params
+        params: { repo_url: `https://github.com/${url}` }
       });
 
       console.log(response)
@@ -121,7 +121,7 @@ export default function EditPage() {
           setError(update_response.data.message)
         }
 
-      } else if (response.data.status === "failure") { // <-- corrected typo "states" to "status"
+      } else if (response.data.status === "failure") {
 
         setVerification(EditPageStates.SHOW_POP_UP)
 
@@ -209,51 +209,50 @@ export default function EditPage() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-900 text-white py-10">
+    <div className="w-full min-h-screen bg-gray-900 text-white py-6 px-3 sm:py-10 sm:px-0">
 
       <Navbar />
 
       {error && (
-        <div className="max-w-4xl mx-auto mt-6 px-4">
-          <div className="bg-red-500 bg-opacity-20 text-white rounded-xl shadow-xl p-4 text-center">
+        <div className="w-full max-w-4xl mx-auto mt-4 sm:mt-6 px-2 sm:px-4">
+          <div className="bg-red-500 bg-opacity-20 text-white rounded-xl shadow-xl p-3 sm:p-4 text-center text-sm sm:text-base">
             ⚠️ {error}
           </div>
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto mt-5">
+      <div className="max-w-4xl mx-auto mt-3 sm:mt-5">
         {pageLoading ? (
           <Loader />
         ) : (
+          <div className="w-full py-4 sm:py-10 px-3 sm:px-4">
 
+            {isOwner ? 
+              <div className="mb-4 p-2 bg-gray-800 border-l-4 border-green-500 text-white font-bold text-xs sm:text-sm">
+                💡 Tip: Double-click on any field to edit it.
+              </div> 
+            : <div/>}
 
-          <div className="max-w-4xl mx-auto py-10 px-4">
-
-            {isOwner ? <div className="mb-4 p-2 bg-gray-800 border-l-4 border-green-500 text-white font-bold text-sm">
-              💡 Tip: Double-click on any field to edit it.
-            </div> : <div/>}
-
-            <div className="mb-10">
-              <div className="flex justify-between items-center mb-4">
+            <div className="mb-6 sm:mb-10">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4">
                 {editingTitle ? (
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     onBlur={handleTitleUpdate}
                     autoFocus
-                    className="text-5xl font-extrabold bg-gray-700 text-white rounded px-2 outline-none border border-gray-600"
+                    className="text-3xl sm:text-5xl font-extrabold bg-gray-700 text-white rounded px-2 outline-none border border-gray-600 w-full mb-2 sm:mb-0"
                   />
-
                 ) : (
                   <h1
-                    className="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent cursor-pointer"
+                    className="text-3xl sm:text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent cursor-pointer mb-2 sm:mb-0"
                     onDoubleClick={() => setEditingTitle(isOwner)}
                   >
                     {title}
                   </h1>
                 )}
 
-                <span className="text-xl font-semibold text-gray-300">
+                <span className="text-base sm:text-xl font-semibold text-gray-300">
                   By: {owner}
                 </span>
               </div>
@@ -265,64 +264,59 @@ export default function EditPage() {
                   onBlur={handleDescriptionUpdate}
                   autoFocus
                   rows={3}
-                  className="w-full bg-gray-700 text-gray-200 rounded px-3 py-2 border border-gray-600 outline-none text-lg leading-relaxed max-w-3xl"
+                  className="w-full bg-gray-700 text-gray-200 rounded px-3 py-2 border border-gray-600 outline-none text-base sm:text-lg leading-relaxed"
                 />
               ) : (
                 <p
-                  className="text-lg text-gray-300 leading-relaxed max-w-3xl cursor-pointer"
+                  className="text-base sm:text-lg text-gray-300 leading-relaxed cursor-pointer"
                   onDoubleClick={() => setEditingDescription(isOwner)}
                 >
                   {description}
                 </p>
               )}
 
-
-              <hr className="border-gray-600 mt-6" />
+              <hr className="border-gray-600 mt-4 sm:mt-6" />
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
+              {isOwner ? 
+                <div className="mb-4 sm:mb-8">
+                  <button
+                    className="w-full py-2 sm:py-3 border-2 border-dotted border-green-500 text-white rounded-xl text-lg sm:text-xl font-semibold shadow hover:bg-green-500 hover:bg-opacity-10 hover:text-green-300 transition duration-300"
+                    onClick={handleUpdate}
+                  >
+                    🔄 Update
+                  </button>
+                </div> 
+              : <div/>}
 
-              {isOwner ? <div className="mb-8">
-                <button
-                  className="w-full py-3 border-2 border-dotted border-green-500 text-white rounded-xl text-xl font-semibold shadow hover:bg-green-500 hover:bg-opacity-10 hover:text-green-300 transition duration-300"
-                  onClick={handleUpdate}
-                >
-                  🔄 Update
-                </button>
-              </div> : <div/>}
-
-              {summaries.length === 0 ? (
-                <div className="w-full border border-dashed border-gray-600 rounded-xl p-10 text-center bg-gray-800 bg-opacity-40 shadow-lg">
-                  <h3 className="text-2xl font-semibold text-white mb-4">⏳ Summarizing in Progress...</h3>
-                  <p className="text-gray-300 mb-4">
+              {summaries && summaries.length === 0 ? (
+                <div className="w-full border border-dashed border-gray-600 rounded-xl p-6 sm:p-10 text-center bg-gray-800 bg-opacity-40 shadow-lg">
+                  <h3 className="text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">⏳ Summarizing in Progress...</h3>
+                  <p className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4">
                     We're currently analyzing and summarizing the commits in this repository.
                   </p>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-xs sm:text-sm text-gray-400">
                     Please check back in a few minutes to view your changelog.
                   </p>
                 </div>
               ) : (
-                summaries
+                summaries && summaries
                   .slice()
                   .reverse()
                   .map((commit) => <CommitCard key={commit.commit_hash} commit={commit} repo_url={url} isOwner={isOwner} />)
               )}
-
-
             </div>
           </div>
-
-
-
         )}
       </div>
 
       {/* API Key Input Pop-up */}
-      {verification == EditPageStates.SHOW_POP_UP && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-gray-800 rounded-xl p-6 shadow-2xl max-w-md w-full">
-            <h2 className="text-2xl text-white font-semibold mb-4">🔑 API Key Required</h2>
-            <p className="text-gray-300 mb-4">
+      {verification === EditPageStates.SHOW_POP_UP && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-filter backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-2xl w-full max-w-sm sm:max-w-md">
+            <h2 className="text-xl sm:text-2xl text-white font-semibold mb-3 sm:mb-4">🔑 API Key Required</h2>
+            <p className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4">
               This repository appears private. Please provide your GitHub API key to update.
             </p>
             <input
@@ -330,22 +324,21 @@ export default function EditPage() {
               placeholder="Enter your GitHub API Key"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white placeholder-gray-400 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3 sm:px-4 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white placeholder-gray-400 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base"
             />
             <div className="mt-4 flex justify-end space-x-2">
               <button
                 onClick={() => {
                   setVerification(EditPageStates.NEED_TO_VERIFY)
                 }}
-                className="px-4 py-2 text-gray-300 rounded-md hover:text-white transition"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-gray-300 rounded-md hover:text-white transition text-sm sm:text-base"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUpdateFromPopUp}
                 disabled={!apiKey.trim()}
-                className={`px-4 py-2 bg-green-600 text-white rounded-md transition duration-300 ${!apiKey.trim() ? "opacity-50 cursor-not-allowed" : "hover:bg-green-500"
-                  }`}
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 bg-green-600 text-white rounded-md transition duration-300 text-sm sm:text-base ${!apiKey.trim() ? "opacity-50 cursor-not-allowed" : "hover:bg-green-500"}`}
               >
                 Submit
               </button>
@@ -355,9 +348,9 @@ export default function EditPage() {
       )}
 
       {(loading || pageLoading) && (
-        <div className="fixed inset-0 z-50 bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg flex flex-col items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg flex flex-col items-center justify-center p-4">
           <Loader />
-          <p className="mt-4 text-xl text-gray-200 animate-pulse">
+          <p className="mt-4 text-base sm:text-xl text-gray-200 animate-pulse text-center">
             Summarizing repository commits...
           </p>
         </div>
@@ -365,5 +358,4 @@ export default function EditPage() {
 
     </div>
   );
-
 }
