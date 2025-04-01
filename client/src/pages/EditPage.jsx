@@ -13,7 +13,6 @@ export default function EditPage() {
 
   const [pageLoading, setPageLoading] = useState(true)
   const [loading, setLoading] = useState(false)
-  const [searchParams] = useSearchParams()
 
   const [title, setTitle] = useState()
   const [description, setDescription] = useState()
@@ -34,7 +33,9 @@ export default function EditPage() {
 
   const navigate = useNavigate()
 
-  const url = searchParams.get('repo_url')
+  const { repoowner, name } = useParams();
+
+  const url = `${repoowner}/${name}`
   const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {

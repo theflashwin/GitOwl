@@ -67,7 +67,7 @@ export default function Repositories() {
           {repos.map((repo, idx) => (
             <Link
               key={idx}
-              to={`/edit?repo_url=${repo.repo_url.replace("https://github.com/", "")}`}
+              to={`/${repo.repo_url.replace("https://github.com/", "")}`}
               className="p-4 bg-gray-700 rounded-lg shadow hover:bg-gray-600 transition duration-300 flex justify-between items-center"
             >
               <div>

@@ -54,7 +54,7 @@ export default function Home() {
         if (response.data.status === "success") {
 
           const trimmed_repo_url = trim_url(repoUrl)
-          navigate(`/edit?repo_url=${trimmed_repo_url}`)
+          navigate(`/${trimmed_repo_url}`)
 
         } else {
 

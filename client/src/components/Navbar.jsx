@@ -16,7 +16,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="text-3xl font-extrabold text-white hover:text-gray-300 flex items-center">
-              Git Sparrow
+              Git Parrot
               <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-blue-500 text-white rounded-full">BETA</span>
             </Link>
           </div>
