@@ -13,7 +13,7 @@ export default function CommitCard({ commit, repo_url, isOwner }) {
     const [error, setError] = useState("");
     const [deleted, setDeleted] = useState(false)
 
-    const api = "http://localhost:8000"; // or your production backend
+    const api = import.meta.env.API_URL;
 
     const editTitle = async () => {
         try {

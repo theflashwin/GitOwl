@@ -35,7 +35,7 @@ export default function EditPage() {
   const navigate = useNavigate()
 
   const url = searchParams.get('repo_url')
-  const api = 'http://localhost:8000'
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     console.log(authLoading)

@@ -11,7 +11,7 @@ export default function Repositories() {
   const [error, setError] = useState("");
   
   const { user, authLoading, isLoggedIn } = user_auth();
-  const api = "http://localhost:8000";
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     async function fetchRepos() {
