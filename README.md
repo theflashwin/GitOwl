@@ -59,12 +59,7 @@ In the beginning, my code relied on an approach in which we cloned the entire re
 
 The final solution I settled upon is to summarize file differences file by file (hopefully avoiding the limited token length). We take those short summaries and generate one large summary for the entire commit.
 
-## Future Enhancements
+## Future Direction
 
-1. Adding functionality to actually edit the changelog - I am in the process of adding this, I know how to but I want to interface to be pretty and simplistic, and haven't really found a good approach on how to do this
-2. Security - adding the ability for pages to be public, private, etc... 
-3. User Accounts - my plan is to allow three free changelogs per account, and then have a paid tier for unlimited. Also, this will help users remember and keep track of the repositories they've edited {DONE}
-
-## Apology
-
-This project is very exciting for me, but unfortunately OS, Abstract algebra, Deep Learning, etc is killing me and I haven't had time to meaninfully add the above features. However, I plan to add the above over the next week. Just wanted to give a quick update as to where I am.
+1. Adding ability to add colaborators
+2. More security on public repositories - add ability for repo owner to claim the repo if it has already been made.
