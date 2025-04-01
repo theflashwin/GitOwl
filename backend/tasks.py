@@ -4,6 +4,8 @@ from typing import Optional
 from dotenv import load_dotenv
 import os
 
+import requests
+
 load_dotenv()
 
 celery_app = Celery(
@@ -12,9 +14,14 @@ celery_app = Celery(
     broker=os.getenv("CELERY_BROKER_URL")
 )
 
+RETRY_KWARGS = {"max_retries": 3, "countdown": 10}
+
 from middlewares import processing, db, schemas
 
-@celery_app.task(name="summarize_repo_task")
+@celery_app.task(name="summarize_repo_task",
+    autoretry_for=(requests.exceptions.HTTPError,),
+    retry_kwargs=RETRY_KWARGS,
+    retry_backoff=True)
 def summarize_repo_task(repo_url: str, api_key: Optional[str]):
     try:
         db.set_state(repo_url=repo_url, state=schemas.RepoStates.PROCESSING)
@@ -26,7 +33,10 @@ def summarize_repo_task(repo_url: str, api_key: Optional[str]):
         print(f"[Task Error] {e}")
         return False
     
-@celery_app.task(name="update_summaries_task")
+@celery_app.task(name="update_summaries_task",
+    autoretry_for=(requests.exceptions.HTTPError,),
+    retry_kwargs=RETRY_KWARGS,
+    retry_backoff=True)
 def update_summaries_task(repo_url: str, api_key: Optional[str]):
     try:
         # first, fetch updated summaries
