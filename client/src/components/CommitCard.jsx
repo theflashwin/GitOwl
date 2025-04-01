@@ -170,14 +170,15 @@ export default function CommitCard({ commit, repo_url, isOwner }) {
                     ) : (
                         <li
                             key={idx}
-                            onDoubleClick={() =>
-                                setEditingChanges((prev) => {
-                                    if (isOwner) return;
-                                    const copy = [...prev];
-                                    copy[idx] = true;
-                                    return copy;
-                                })
-                            }
+                            onDoubleClick={() => {
+                                if (isOwner) {
+                                    setEditingChanges((prev) => {
+                                        const copy = [...prev];
+                                        copy[idx] = true;
+                                        return copy;
+                                    });
+                                }
+                            }}
                             className="cursor-pointer"
                         >
                             {change}
